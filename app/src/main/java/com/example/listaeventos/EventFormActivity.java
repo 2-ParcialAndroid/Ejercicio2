@@ -29,14 +29,27 @@ public class EventFormActivity extends AppCompatActivity {
             String name = etName.getText().toString();
             String description = etDescription.getText().toString();
             String location = etLocation.getText().toString();
-            double price = Double.parseDouble(etPrice.getText().toString());
+            String priceStr = etPrice.getText().toString();
             String date = etDate.getText().toString();
+
+            if (name.isEmpty() || description.isEmpty() || location.isEmpty() || priceStr.isEmpty() || date.isEmpty()) {
+                Toast.makeText(this, "Por favor, complete todos los campos", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            double price;
+            try {
+                price = Double.parseDouble(priceStr);
+            } catch (NumberFormatException e) {
+                Toast.makeText(this, "Precio inválido", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
             String eventId = databaseReference.push().getKey(); // Genera un ID único para el evento
             Event event = new Event(name, description, location, price, date);
             databaseReference.child(eventId).setValue(event)
                     .addOnSuccessListener(aVoid -> {
-                        Toast.makeText(this, R.string.save, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "Evento guardado correctamente", Toast.LENGTH_SHORT).show();
                         finish();
                     })
                     .addOnFailureListener(e -> Toast.makeText(this, "Error al guardar evento", Toast.LENGTH_SHORT).show());

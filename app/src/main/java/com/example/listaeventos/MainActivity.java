@@ -10,6 +10,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -28,6 +29,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Initialize Firebase
+        FirebaseApp.initializeApp(this);
+
         databaseReference = FirebaseDatabase.getInstance().getReference("events");
         ListView lvEvents = findViewById(R.id.lv_events);
         Button btnAddEvent = findViewById(R.id.btn_add_event);
@@ -39,6 +43,14 @@ public class MainActivity extends AppCompatActivity {
         btnAddEvent.setOnClickListener(v -> startActivity(new Intent(this, EventFormActivity.class)));
 
         loadEvents();
+    }
+    private void addSampleEvent() {
+        DatabaseReference sampleRef = FirebaseDatabase.getInstance().getReference("events");
+        String eventId = sampleRef.push().getKey();
+        Event sampleEvent = new Event("Sample Event", "This is a sample event", "Sample Location", 10.0, "2024-12-31");
+        sampleRef.child(eventId).setValue(sampleEvent)
+                .addOnSuccessListener(aVoid -> Toast.makeText(this, "Sample event added", Toast.LENGTH_SHORT).show())
+                .addOnFailureListener(e -> Toast.makeText(this, "Error adding sample event", Toast.LENGTH_SHORT).show());
     }
 
     private void loadEvents() {
@@ -63,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
             public void onCancelled(@NonNull DatabaseError error) {
                 Toast.makeText(MainActivity.this, "Error al cargar eventos", Toast.LENGTH_SHORT).show();
             }
+
         });
     }
 }
